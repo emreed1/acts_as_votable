@@ -103,7 +103,7 @@ module ActsAsVotable
 
       if vote.save
         self.vote_registered = true if last_update != vote.updated_at
-        update_cached_votes options[:vote_scope]
+        increment_votes
         return true
       else
         self.vote_registered = false
@@ -160,6 +160,12 @@ module ActsAsVotable
       when :cached_weighted_score=
         "cached_weighted_#{vote_scope}_score="
       end
+    end
+
+    def increment_votes
+      counter_class = "#{self.class.name}_counter".singularize.classify.constantize
+      counter = counter_class.where(post_id: self.id, countable_type: counter_class::VOTES).first_or_create!
+      counter_class.increment_counter :counts, counter.id
     end
 
     # caching
