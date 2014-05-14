@@ -103,7 +103,7 @@ module ActsAsVotable
 
       if vote.save
         self.vote_registered = true if last_update != vote.updated_at
-        increment_votes
+        increment_votes and return false if _votes_.count > 0
         return true
       else
         self.vote_registered = false
